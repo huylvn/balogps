@@ -1,0 +1,66 @@
+.add-zone-page {
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+.add-zone-header {
+  background: #E53935;
+  color: white;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.add-zone-header h1 {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.map-selector {
+  position: relative;
+}
+
+.map-hint {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  z-index: 1000;
+}
+
+.add-zone-form {
+  padding: 24px;
+}
+
+.coordinates-display {
+  background: #E8F5E9;
+  color: #2E7D32;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 14px;
+  background: #E53935;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

@@ -1,0 +1,47 @@
+.add-child-page {
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+.add-child-header {
+  background: #E53935;
+  color: white;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.add-child-header h1 {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.add-child-form {
+  padding: 24px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  background: white;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #E53935;
+}

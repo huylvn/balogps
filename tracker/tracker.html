@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#E53935">
+  <title>BaloGPS Tracker</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #E53935 0%, #D32F2F 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: white;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 500px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .status-card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      color: #333;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .status-row:last-child {
+      border-bottom: none;
+    }
+
+    .status-label {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .status-value {
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .status-value.active {
+      color: #4CAF50;
+    }
+
+    .status-value.inactive {
+      color: #999;
+    }
+
+    .status-value.error {
+      color: #E53935;
+    }
+
+    .location-info {
+      background: #f5f5f5;
+      padding: 16px;
+      border-radius: 12px;
+      margin-top: 16px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .control-button {
+      width: 100%;
+      padding: 18px;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      margin-bottom: 12px;
+    }
+
+    .start-button {
+      background: #4CAF50;
+      color: white;
+    }
+
+    .start-button:hover {
+      background: #45a049;
+      transform: translateY(-2px);
+    }
+
+    .stop-button {
+      background: #E53935;
+      color: white;
+    }
+
+    .stop-button:hover {
+      background: #D32F2F;
+      transform: translateY(-2px);
+    }
+
+    .control-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .interval-selector {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .interval-selector label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .interval-selector select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .log-container {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 16px;
+      max-height: 200px;
+      overflow-y: auto;
+      margin-top: 20px;
+    }
+
+    .log-entry {
+      font-size: 12px;
+      padding: 4px 0;
+      opacity: 0.9;
+      font-family: 'Courier New', monospace;
+    }
+
+    .error-message {
+      background: #FFEBEE;
+      color: #C62828;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      text-align: left;
+      line-height: 1.6;
+      border-left: 4px solid #C62828;
+    }
+
+    .error-message code {
+      background: #fff;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      color: #d32f2f;
+      word-break: break-all;
+    }
+
+    .error-message ol {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+
+    .error-message li {
+      margin: 5px 0;
+    }
+
+    .error-message strong {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>📍 BaloGPS Tracker</h1>
+    <p>Chế độ theo dõi GPS</p>
+  </div>
+
+  <div class="container">
+    <div id="error-container"></div>
+
+    <div class="status-card">
+      <div class="status-row">
+        <span class="status-label">Trạng thái</span>
+        <span id="tracking-status" class="status-value inactive">Đã dừng</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">Quyền GPS</span>
+        <span id="gps-permission" class="status-value inactive">Chưa cấp</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">Lần gửi gần nhất</span>
+        <span id="last-sent" class="status-value">Chưa gửi</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">Đã gửi</span>
+        <span id="sent-count" class="status-value">0 điểm</span>
+      </div>
+
+      <div class="location-info" id="location-info">
+        <div>Vĩ độ: --</div>
+        <div>Kinh độ: --</div>
+        <div>Độ chính xác: --</div>
+        <div>Tốc độ: --</div>
+      </div>
+    </div>
+
+    <div class="interval-selector">
+      <label for="interval">Tần suất gửi dữ liệu</label>
+      <select id="interval">
+        <option value="5000">5 giây</option>
+        <option value="10000" selected>10 giây</option>
+        <option value="15000">15 giây</option>
+        <option value="30000">30 giây</option>
+        <option value="60000">1 phút</option>
+      </select>
+    </div>
+
+    <button id="start-btn" class="control-button start-button">
+      Bắt đầu theo dõi
+    </button>
+
+    <button id="stop-btn" class="control-button stop-button" style="display: none;">
+      Dừng theo dõi
+    </button>
+
+    <div class="log-container" id="log-container"></div>
+  </div>
+
+  <script>
+    // Use HTTPS if available, otherwise use current protocol
+    const protocol = window.location.protocol === 'https:' ? 'https:' : window.location.protocol;
+    const hostname = window.location.hostname;
+    const port = window.location.port || (protocol === 'https:' ? '3443' : '3000');
+    const API_BASE_URL = `${protocol}//${hostname}:${port}/api`;
+    
+    let token = null;
+    let tracking = false;
+    let intervalId = null;
+    let sentCount = 0;
+    let watchId = null;
+
+    // Get token from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    token = urlParams.get('token');
+
+    if (!token) {
+      showError('Không tìm thấy token. Vui lòng sử dụng link được cung cấp.');
+    }
+
+    function showError(message) {
+      const container = document.getElementById('error-container');
+      container.innerHTML = `<div class="error-message">${message}</div>`;
+    }
+
+    function addLog(message) {
+      const logContainer = document.getElementById('log-container');
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      logContainer.insertBefore(entry, logContainer.firstChild);
+      
+      // Keep only last 20 entries
+      while (logContainer.children.length > 20) {
+        logContainer.removeChild(logContainer.lastChild);
+      }
+    }
+
+    function updateStatus(status) {
+      const statusEl = document.getElementById('tracking-status');
+      if (status === 'tracking') {
+        statusEl.textContent = 'Đang theo dõi';
+        statusEl.className = 'status-value active pulse';
+      } else {
+        statusEl.textContent = 'Đã dừng';
+        statusEl.className = 'status-value inactive';
+      }
+    }
+
+    function updateLocationDisplay(position) {
+      const info = document.getElementById('location-info');
+      info.innerHTML = `
+        <div>Vĩ độ: ${position.coords.latitude.toFixed(6)}</div>
+        <div>Kinh độ: ${position.coords.longitude.toFixed(6)}</div>
+        <div>Độ chính xác: ${position.coords.accuracy.toFixed(1)}m</div>
+        <div>Tốc độ: ${position.coords.speed ? (position.coords.speed * 3.6).toFixed(1) + ' km/h' : 'N/A'}</div>
+      `;
+    }
+
+    async function sendLocation(position) {
+      try {
+        const payload = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          ts: new Date().toISOString(),
+          accuracy_m: position.coords.accuracy,
+          speed_mps: position.coords.speed || 0,
+        };
+
+        const response = await fetch(`${API_BASE_URL}/tracker/ping`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Tracker ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        sentCount++;
+        
+        document.getElementById('sent-count').textContent = `${sentCount} điểm`;
+        document.getElementById('last-sent').textContent = new Date().toLocaleTimeString();
+        
+        addLog(`✓ Gửi thành công (${payload.accuracy_m.toFixed(1)}m)`);
+        updateLocationDisplay(position);
+      } catch (error) {
+        addLog(`✗ Lỗi gửi: ${error.message}`);
+        console.error('Send location error:', error);
+      }
+    }
+
+    function startTracking() {
+      if (!token) {
+        showError('Token không hợp lệ');
+        return;
+      }
+
+      // Request GPS permission
+      if (!navigator.geolocation) {
+        showError('Trình duyệt không hỗ trợ GPS');
+        return;
+      }
+
+      // Check if running on HTTPS or localhost
+      const isSecureContext = window.isSecureContext || window.location.protocol === 'https:' || 
+                             window.location.hostname === 'localhost' || 
+                             window.location.hostname === '127.0.0.1';
+      
+      if (!isSecureContext) {
+        const hostname = window.location.hostname;
+        showError(`
+          <strong>⚠️ Lỗi: Geolocation yêu cầu HTTPS</strong><br><br>
+          <p>Trình duyệt chặn GPS trên HTTP (không an toàn).</p>
+          <p><strong>Giải pháp tạm thời:</strong></p>
+          <ol style="text-align: left; padding-left: 20px;">
+            <li>Trên Chrome: Vào <code>chrome://flags/#unsafely-treat-insecure-origin-as-secure</code></li>
+            <li>Thêm: <code>http://${hostname}:3000</code></li>
+            <li>Relaunch Chrome</li>
+          </ol>
+          <p><strong>Hoặc:</strong> Test trên <code>http://localhost:3000/tracker.html?token=${token}</code> (chỉ trên máy tính backend)</p>
+          <p><strong>Production:</strong> Cần setup HTTPS (xem DEPLOYMENT.md)</p>
+        `);
+        addLog('✗ Lỗi: Geolocation chỉ hoạt động trên HTTPS hoặc localhost');
+        return;
+      }
+
+      tracking = true;
+      updateStatus('tracking');
+      document.getElementById('start-btn').style.display = 'none';
+      document.getElementById('stop-btn').style.display = 'block';
+      document.getElementById('interval').disabled = true;
+
+      const interval = parseInt(document.getElementById('interval').value);
+
+      addLog('Đang khởi động GPS...');
+
+      // Use watchPosition for continuous tracking
+      watchId = navigator.geolocation.watchPosition(
+        (position) => {
+          document.getElementById('gps-permission').textContent = 'Đã cấp';
+          document.getElementById('gps-permission').className = 'status-value active';
+          
+          if (!intervalId) {
+            // Send immediately
+            sendLocation(position);
+            
+            // Then send at intervals
+            intervalId = setInterval(() => {
+              navigator.geolocation.getCurrentPosition(
+                sendLocation,
+                (error) => {
+                  addLog(`✗ Lỗi GPS: ${error.message}`);
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+              );
+            }, interval);
+            
+            addLog(`Bắt đầu gửi mỗi ${interval/1000}s`);
+          }
+        },
+        (error) => {
+          let errorMsg = error.message;
+          let detailedError = '';
+          
+          if (error.code === 1) { // PERMISSION_DENIED
+            errorMsg = 'Người dùng từ chối quyền truy cập vị trí';
+            detailedError = '<p>Vui lòng cho phép truy cập vị trí trong cài đặt trình duyệt.</p>';
+          } else if (error.code === 2) { // POSITION_UNAVAILABLE
+            errorMsg = 'Không thể xác định vị trí';
+            detailedError = '<p>Kiểm tra GPS đã bật và có tín hiệu.</p>';
+          } else if (error.code === 3) { // TIMEOUT
+            errorMsg = 'Hết thời gian chờ GPS';
+            detailedError = '<p>Tín hiệu GPS yếu. Thử di chuyển ra ngoài trời.</p>';
+          }
+          
+          addLog(`✗ Lỗi GPS: ${errorMsg}`);
+          showError(`<strong>Lỗi GPS:</strong> ${errorMsg}${detailedError}`);
+          stopTracking();
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
+
+    function stopTracking() {
+      tracking = false;
+      updateStatus('stopped');
+      document.getElementById('start-btn').style.display = 'block';
+      document.getElementById('stop-btn').style.display = 'none';
+      document.getElementById('interval').disabled = false;
+
+      if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+
+      if (watchId) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+      }
+
+      addLog('Đã dừng theo dõi');
+    }
+
+    // Event listeners
+    document.getElementById('start-btn').addEventListener('click', startTracking);
+    document.getElementById('stop-btn').addEventListener('click', stopTracking);
+
+    // Keep screen awake (if supported)
+    if ('wakeLock' in navigator) {
+      let wakeLock = null;
+      
+      async function requestWakeLock() {
+        try {
+          wakeLock = await navigator.wakeLock.request('screen');
+          addLog('Màn hình sẽ không tắt');
+        } catch (err) {
+          console.error('Wake lock error:', err);
+        }
+      }
+
+      document.getElementById('start-btn').addEventListener('click', requestWakeLock);
+    }
+
+    // Initial log
+    addLog('Sẵn sàng để theo dõi');
+  </script>
+</body>
+</html>

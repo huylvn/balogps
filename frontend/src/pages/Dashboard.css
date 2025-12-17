@@ -1,0 +1,255 @@
+.dashboard {
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+.dashboard-header {
+  background: #E53935;
+  color: white;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.menu-btn, .logout-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.dashboard-header h1 {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.dashboard-tabs {
+  display: flex;
+  background: white;
+  border-bottom: 2px solid #E53935;
+}
+
+.dashboard-tabs button {
+  flex: 1;
+  padding: 16px;
+  border: none;
+  background: white;
+  font-size: 16px;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.dashboard-tabs button.active {
+  color: #E53935;
+  font-weight: 600;
+}
+
+.dashboard-tabs button.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #E53935;
+}
+
+.devices-list, .objects-list {
+  padding: 16px;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.search-box input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 16px;
+}
+
+.device-card, .object-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.device-card:hover, .object-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.device-icon, .object-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #ffebee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.device-info, .object-info {
+  flex: 1;
+}
+
+.device-name, .object-name {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.device-details {
+  display: flex;
+  gap: 12px;
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.device-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.status-safe {
+  background: #E8F5E9;
+  color: #2E7D32;
+}
+
+.status-danger {
+  background: #FFEBEE;
+  color: #C62828;
+}
+
+.status-unknown {
+  background: #F5F5F5;
+  color: #666;
+}
+
+.device-meta {
+  text-align: right;
+  font-size: 13px;
+  color: #666;
+}
+
+.moving {
+  color: #1976D2;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.last-update {
+  font-size: 12px;
+  color: #999;
+}
+
+.object-type {
+  font-size: 14px;
+  color: #E53935;
+  margin-bottom: 4px;
+}
+
+.object-status {
+  font-size: 14px;
+  color: #666;
+  font-style: italic;
+}
+
+.map-view {
+  height: calc(100vh - 120px);
+  background: #e0e0e0;
+  position: relative;
+}
+
+.map-view .leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+}
+
+.map-placeholder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: #666;
+  background: white;
+  padding: 32px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.empty-state p {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.add-btn {
+  padding: 12px 24px;
+  background: #E53935;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #E53935;
+  color: white;
+  border: none;
+  font-size: 32px;
+  box-shadow: 0 4px 12px rgba(229, 57, 53, 0.4);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.fab:hover {
+  transform: scale(1.1);
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-size: 18px;
+  color: #666;
+}
