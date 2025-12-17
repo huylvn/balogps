@@ -113,16 +113,114 @@ docker-compose up -d
 
 ### Cách 3: Docker Registry (nâng cao)
 
+**Trên máy hiện tại:**
 ```powershell
-# Tag images
-docker tag balogps-backend:latest your-registry.com/balogps-backend:latest
+# Build images
+docker-compose build
 
-# Push to registry
-docker push your-registry.com/balogps-backend:latest
+# Login Docker Hub
+docker login -u your-username
 
-# Trên máy mới, pull và run
-docker pull your-registry.com/balogps-backend:latest
+# Tag images (thay your-username bằng username Docker Hub của bạn)
+docker tag balogps-backend:latest your-username/balogps-backend:latest
+
+# Push to Docker Hub
+docker push your-username/balogps-backend:latest
+
+# Copy file docker-compose.yml sang máy mới
+```
+
+**Trên máy mới:**
+```powershell
+# Cài Docker Desktop
+
+# Tạo docker-compose.yml với nội dung sau:
+```
+
+```yaml
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: balogps-db
+    environment:
+      POSTGRES_DB: balogps
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - balogps-network
+
+  backend:
+    image: your-username/balogps-backend:latest  # Pull từ Docker Hub
+    container_name: balogps-backend
+    ports:
+      - "3000:3000"
+      - "3443:3443"
+    environment:
+      PORT: 3000
+      HTTPS_PORT: 3443
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/balogps
+      JWT_SECRET: balogps-secret-key-production-change-this
+      NODE_ENV: production
+    volumes:
+      - ssl_certs:/app/ssl
+    networks:
+      - balogps-network
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  ssl_certs:
+
+networks:
+  balogps-network:
+    driver: bridge
+```
+
+```powershell
+# Pull và start containers
+docker-compose pull
 docker-compose up -d
+```
+
+**Hoặc chạy trực tiếp không cần docker-compose:**
+```powershell
+# Tạo network
+docker network create balogps-network
+
+# Start PostgreSQL
+docker run -d `
+  --name balogps-db `
+  --network balogps-network `
+  -e POSTGRES_DB=balogps `
+  -e POSTGRES_USER=postgres `
+  -e POSTGRES_PASSWORD=postgres `
+  -p 5433:5432 `
+  -v postgres_data:/var/lib/postgresql/data `
+  postgres:15-alpine
+
+# Đợi PostgreSQL khởi động
+Start-Sleep -Seconds 10
+
+# Start backend
+docker run -d `
+  --name balogps-backend `
+  --network balogps-network `
+  -e PORT=3000 `
+  -e HTTPS_PORT=3443 `
+  -e DATABASE_URL=postgresql://postgres:postgres@balogps-db:5432/balogps `
+  -e JWT_SECRET=balogps-secret-key-production-change-this `
+  -e NODE_ENV=production `
+  -p 3000:3000 `
+  -p 3443:3443 `
+  your-username/balogps-backend:latest
 ```
 
 ---
